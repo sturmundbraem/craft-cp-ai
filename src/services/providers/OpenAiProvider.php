@@ -11,8 +11,20 @@ use stubr\Plugin;
 // Implements the interface so it has the same method signature as all other providers
 class OpenAiProvider implements LlmProviderInterface
 {
-    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt): string
+    // Which model each effort tier uses. The nano/mini tiers are pinned to dated
+    // snapshots, so their behaviour won't shift under us when OpenAI updates them.
+    private const MODELS = [
+        'low'    => 'gpt-5.4-nano-2026-03-17',
+        'medium' => 'gpt-5.4-mini-2026-03-17',
+        'high'   => 'gpt-5.6-terra',
+    ];
+
+    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt, array $options = []): string
     {
+        // Easy/Medium/Hard from the prompt settings picks the model
+        $tier = $options['effort'] ?? 'medium';
+        $model = self::MODELS[$tier] ?? self::MODELS['medium'];
+
         // Build the full prompt that combines: page context + task + target field
         $fullPrompt = "Here is the content of the page:\n" . $context . "\nTask: " . $prompt . "\nWrite the content for the field: " . $fieldHandle;
 
@@ -35,7 +47,7 @@ class OpenAiProvider implements LlmProviderInterface
                     'Content-Type' => 'application/json',       // Tell OpenAI we're sending JSON
                 ],
                 'json' => [                                     // The request body (automatically encoded to JSON by Guzzle)
-                    'model' => 'gpt-4o-mini',                // Which AI model to use
+                    'model' => $model,
                     'messages' => [
                         ['role' => 'system', 'content' => $systemPrompt],
                         ['role' => 'user', 'content' => $fullPrompt]  // The prompt we send to the AI

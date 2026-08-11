@@ -11,8 +11,20 @@ use stubr\Plugin;
 // Implements the interface so it has the same method signature as all other providers
 class ClaudeProvider implements LlmProviderInterface
 {
-    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt): string
+    // Which model each effort tier uses. Prices per million tokens (input/output):
+    // Haiku 4.5 $1/$5 · Sonnet 5 $3/$15 · Opus 5 $5/$25
+    private const MODELS = [
+        'low'    => 'claude-haiku-4-5',
+        'medium' => 'claude-sonnet-5',
+        'high'   => 'claude-opus-5',
+    ];
+
+    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt, array $options = []): string
     {
+        // Easy/Medium/Hard from the prompt settings picks the model
+        $tier = $options['effort'] ?? 'medium';
+        $model = self::MODELS[$tier] ?? self::MODELS['medium'];
+
         // Build the full prompt that combines: page context + task + target field
         $fullPrompt = "Here is the content of the page:\n" . $context . "\nTask: " . $prompt . "\nWrite the content for the field: " . $fieldHandle;
 
@@ -35,8 +47,10 @@ class ClaudeProvider implements LlmProviderInterface
                 'anthropic-version' => '2023-06-01'
             ],
             'json' => [
-                'model' => 'claude-sonnet-4-20250514',
-                'max_tokens' => 1024,
+                'model' => $model,
+                // max_tokens caps thinking AND the visible answer together —
+                // Sonnet 5 and Opus 5 think by default, so keep headroom.
+                'max_tokens' => 4096,
                 'system' => $systemPrompt, 
                 'messages' => [
                     ['role' => 'user', 'content' => $fullPrompt]
@@ -50,9 +64,15 @@ class ClaudeProvider implements LlmProviderInterface
         // Parse the JSON response from OpenAI
         $body = json_decode($response->getBody(), true);
 
-        // Dig into the response structure to get the actual generated text
-        // Claude returns: { content: [ { text: "the text" } ] }
-        return $body['content'][0]['text'];
+        // Claude returns a list of blocks, e.g. a "thinking" block followed by the
+        // answer. Walk the list and return the first real text block.
+        foreach ($body['content'] as $block) {
+            if (($block['type'] ?? '') === 'text') {
+                return $block['text'];
+            }
+        }
+
+        throw new \Exception('Claude returned no text block');
 
     }
 }

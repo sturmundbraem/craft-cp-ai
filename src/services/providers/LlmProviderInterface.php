@@ -12,5 +12,8 @@ interface LlmProviderInterface
     // $context — all the field values from the page, so the AI understands the content
     // $fieldHandle — which field the AI is writing for (e.g. "subtitle")
     // Returns: the generated text as a string
-    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt): string;
+    // $options — extra per-prompt settings, e.g. ['effort' => 'medium'].
+    //            Each provider maps these to its own API parameters, and ignores
+    //            any option it doesn't support.
+    public function generateText(string $prompt, string $context, string $fieldHandle, string $systemPrompt, array $options = []): string;
 }
