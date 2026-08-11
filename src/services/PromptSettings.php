@@ -7,6 +7,7 @@ use craft\base\Component;
 use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 
 class PromptSettings extends Component
 {
@@ -26,6 +27,7 @@ class PromptSettings extends Component
                 'text' => 'DE',
                 'label' => 'Translate to DE',
                 'provider' => 'deepl',
+                'effort' => 'medium',
                 'createDraft' => '',
                 'allPlainText' => '1',
                 'allCKEditor' => '1',
@@ -35,6 +37,7 @@ class PromptSettings extends Component
                 'text' => 'Translate to {{ siteLang }}',
                 'label' => 'Translate to current language',
                 'provider' => 'openai',
+                'effort' => 'medium',
                 'createDraft' => '',
                 'allPlainText' => '1',
                 'allCKEditor' => '1',
@@ -44,6 +47,7 @@ class PromptSettings extends Component
                 'text' => 'Correct syntax, spelling, and grammar',
                 'label' => 'Correct',
                 'provider' => 'openai',
+                'effort' => 'medium',
                 'createDraft' => '',
                 'allPlainText' => '1',
                 'allCKEditor' => '1',
@@ -53,6 +57,7 @@ class PromptSettings extends Component
                 'text' => 'Shorten text to 3/4 length',
                 'label' => 'Shorten',
                 'provider' => 'claude',
+                'effort' => 'medium',
                 'createDraft' => '',
                 'allPlainText' => '1',
                 'allCKEditor' => '1',
@@ -164,7 +169,11 @@ class PromptSettings extends Component
     {
         $settings = Craft::$app->getProjectConfig()->get('plugins.craft-loki.settings') ?? [];
 
-        return is_array($settings) ? $settings : [];
+        if (!is_array($settings)) {
+            return [];
+        }
+
+        return ProjectConfigHelper::unpackAssociativeArrays($settings);
     }
 
     private function arrayValue(mixed $value, array $default = []): array

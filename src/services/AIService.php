@@ -11,10 +11,10 @@ class AIService
 {
     // Takes a prompt, page context, and field handle
     // Returns the AI-generated text as a string
-    public function generateContent(string $prompt, $context, $fieldHandle, string $provider, string $basePrompt): string
+    public function generateContent(string $prompt, $context, $fieldHandle, string $provider, string $basePrompt, array $options = []): string
     {
         $factory = LlmProviderFactory::getInstance();
         $llmProvider = $factory->getProvider($provider);
-        return $llmProvider->generateText($prompt, $context, $fieldHandle, $basePrompt);
+        return $llmProvider->generateText($prompt, $context, $fieldHandle, $basePrompt, $options);
     }
 }

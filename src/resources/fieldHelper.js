@@ -2,6 +2,7 @@
 function positionWandButton(btn) {
     if (btn.dataset.positioned === '1') return;     // skip already-placed buttons
     var wrapper = btn.closest('.ai-wand-wrapper');
+
     var field = wrapper ? wrapper.closest('.field') : btn.closest('.field');
     if (wrapper && field) {
         var heading = null;
@@ -42,7 +43,7 @@ function hasAllPlainTextPrompts() {
     return false;
 }
 
-function addNativeWand(root, selector, handle) {
+function addNativeWand(root, selector, handle, label) {
     if (!hasAllPlainTextPrompts()) return;
     (root || document).querySelectorAll(selector).forEach(function(input) {
         var field = input.closest('.field');
@@ -56,6 +57,7 @@ function addNativeWand(root, selector, handle) {
         btn.className = 'ai-wand-btn btn small icon';
         btn.dataset.icon = 'wand-magic-sparkles';
         btn.dataset.field = handle;
+        btn.dataset.label = label;        // ← add this
         btn.dataset.type = 'PlainText';
 
         wrapper.appendChild(btn);
@@ -68,8 +70,8 @@ function addNativeWand(root, selector, handle) {
 // These are rendered by field-layout elements, not Field objects, so the
 // server-side EVENT_DEFINE_INPUT_HTML never fires for them.
 function addNativeFieldWands(root) {
-    addNativeWand(root, 'input[name="title"], input[name$="[title]"]', 'title');
-    addNativeWand(root, 'textarea[name="alt"], textarea[name$="[alt]"]', 'alt');
+    addNativeWand(root, 'input[name="title"], input[name$="[title]"]', 'title', 'Title');
+    addNativeWand(root, 'textarea[name="alt"], textarea[name$="[alt]"]', 'alt', 'Alternative Text');
 }
 
 // Position any wand buttons already in the DOM
@@ -115,6 +117,7 @@ document.addEventListener('click', function(event) {
         // These were set in Plugin.php when the button was created
         var buttonField = btn.dataset.field;   // e.g. "subtitle"
         var buttonType = btn.dataset.type;     // e.g. "PlainText"
+        var fieldLabel = btn.dataset.label;   // e.g. "Subtitle" (for display in the menu header)
 
         // If a dropdown menu is already open, close it and stop
         // This makes the wand button work as a toggle (click to open, click to close)
@@ -159,7 +162,7 @@ document.addEventListener('click', function(event) {
 
         var headerTitle = document.createElement('span');
         headerTitle.className = 'ai-prompt-menu-title';
-        headerTitle.textContent = buttonField;
+        headerTitle.textContent = fieldLabel;
         header.appendChild(headerTitle);
 
         var closeBtn = document.createElement('button');

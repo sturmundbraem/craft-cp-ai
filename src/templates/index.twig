@@ -56,6 +56,15 @@
                         {label: 'DeepL', value: 'deepl'},
                     ],
                 },
+                effort: {
+                    heading: 'TIER',
+                    type: 'select',
+                    options: [
+                        {label: 'Easy', value: 'low'},
+                        {label: 'Medium', value: 'medium'},
+                        {label: 'Hard', value: 'high'},
+                    ],
+                },
                 createDraft: {
                     heading: 'CREATE DRAFT',
                     type: 'checkbox',
@@ -74,7 +83,7 @@
 
         <div style="display: flex; gap: 20px;">
             <div style="flex: 1; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
-                <h6>Fields</h6>
+                <h6 style="margin-bottom: 10px;">Fields</h6>
 
                 <button type="button" class="btn field-select-btn" data-handle="__allPlainText" style="display:block; width: 100%; margin-bottom: 5px; text-align: left;">
                     All Plaintext fields
@@ -97,7 +106,7 @@
             </div>
 
             <div style="flex: 1; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
-                <h6>Prompts</h6>
+                <h6 style="margin-bottom: 10px;">Prompts</h6>
                 <div id="prompt-checkboxes">
                     <p style="color: #999;">Select a field to see its prompts</p>
                 </div>

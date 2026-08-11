@@ -129,6 +129,7 @@ class Plugin extends \craft\base\Plugin
 
                 // Get the field's handle (e.g. "subtitle") and type (e.g. "PlainText")
                 $fieldHandle = $event->sender->handle;
+                $fieldLabel = $event->sender->name;   // human-readable label, e.g. "Subtitle"
                 if ($event->sender instanceof \craft\fields\PlainText) {
                     $fieldType = 'PlainText';
                 } else if ($event->sender instanceof \craft\ckeditor\Field) {
@@ -173,7 +174,7 @@ class Plugin extends \craft\base\Plugin
 
                 // Append a wand button to the field's HTML
                 $matrixAttr = $matrixHandle ? ' data-matrix-field="' . $matrixHandle . '"' : '';
-                $event->html .= '<div class="ai-wand-wrapper"><button type="button" class="ai-wand-btn btn small icon" data-icon="wand-magic-sparkles" data-field="' . $fieldHandle . '" data-type="' . $fieldType . '"' . $matrixAttr . '></button></div>';
+                $event->html .= '<div class="ai-wand-wrapper"><button type="button" class="ai-wand-btn btn small icon" data-icon="wand-magic-sparkles" data-field="' . $fieldHandle . '" data-label="' . htmlspecialchars($fieldLabel, ENT_QUOTES) . '" data-type="' . $fieldType . '"' . $matrixAttr . '></button></div>';
                 }
             }
         );

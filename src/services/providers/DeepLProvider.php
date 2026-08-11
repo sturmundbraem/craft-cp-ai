@@ -9,7 +9,9 @@ use stubr\Plugin;
 
 class DeepLProvider implements LlmProviderInterface
 {
-    public function generateText($prompt, $context, $fieldHandle, string $systemPrompt):string {
+    // DeepL is a translation API, not an LLM — it has no effort concept, so
+    // $options is accepted (the interface requires it) and ignored.
+    public function generateText($prompt, $context, $fieldHandle, string $systemPrompt, array $options = []):string {
         $client = new Client();
 
         $apiKey = App::parseEnv(Plugin::$plugin->getSettings()->deeplApiKey);

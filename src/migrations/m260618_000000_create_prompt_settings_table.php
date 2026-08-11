@@ -8,6 +8,7 @@ use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use stubr\services\PromptSettings;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 
 class m260618_000000_create_prompt_settings_table extends Migration
 {
@@ -42,7 +43,7 @@ class m260618_000000_create_prompt_settings_table extends Migration
     private function seedLegacySettings(): void
     {
         $legacySettings = Craft::$app->getProjectConfig()->get('plugins.craft-loki.settings') ?? [];
-        $legacySettings = is_array($legacySettings) ? $legacySettings : [];
+        $legacySettings = is_array($legacySettings) ? ProjectConfigHelper::unpackAssociativeArrays($legacySettings) : [];
 
         $values = [
             'prompts' => $this->arrayValue($legacySettings['prompts'] ?? null, PromptSettings::defaultPrompts()),

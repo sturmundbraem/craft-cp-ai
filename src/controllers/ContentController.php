@@ -50,6 +50,13 @@ class ContentController extends \craft\web\Controller
             return $this->asJson(['error' => 'Invalid provider'], 400);
         }
 
+        // Per-prompt effort level; falls back to medium for prompts saved
+        // before this column existed.
+        $effort = $matchedPrompt['effort'] ?? 'medium';
+        if (!in_array($effort, ['low', 'medium', 'high'], true)) {
+            $effort = 'medium';
+        }
+
         // Load the element by ID for the requested site. getElementById() returns
         // any element type (Entry, Asset, etc.) — needed because native attributes
         // like "alt" live on Assets, not just Entries.
@@ -103,7 +110,7 @@ class ContentController extends \craft\web\Controller
         $aiService = new AIService();
         
         try {
-            $generatedContent = $aiService->generateContent($prompt, $context, $fieldHandle, $provider, $basePrompt);
+            $generatedContent = $aiService->generateContent($prompt, $context, $fieldHandle, $provider, $basePrompt, ['effort' => $effort]);
         } catch (\Exception $e) {
             return $this->asJson(['error' => $e->getMessage()]);
         }
